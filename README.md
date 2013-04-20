@@ -4,7 +4,7 @@ A couple of macros that do useful, general things.
 
 ## Usage
 
-The easiest way to use Clostache in your project is via
+The easiest way to use Poppea in your project is via
 [Clojars](http://clojars.org/net.colourcoding/poppea).
 
 Leiningen:
