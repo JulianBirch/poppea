@@ -10,7 +10,7 @@ The easiest way to use Clostache in your project is via
 Leiningen:
 
 ```clj
-[poppea/poppea "0.0.1"]
+[net.colourcoding/poppea "0.0.1"]
 ```
 
 Namespace:
