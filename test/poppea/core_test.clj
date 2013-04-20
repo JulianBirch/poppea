@@ -7,7 +7,7 @@
 
 (deftest quick-map-test
   (is (= {:a 4 :b 5 :c 3}
-         (quick-map a b :c 3))))
+         (coffee-map a b :c 3))))
 
 (defn-curried add [x y] (+ x y))
 

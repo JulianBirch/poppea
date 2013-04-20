@@ -38,15 +38,15 @@
   [& params]
   (do-curried 'fn curry params))
 
-(defn- quick-map-fn [keys]
+(defn- coffee-map-fn [keys]
   (if (empty? keys)
     []
     (let [k (first keys)]
       (if (keyword? k)
-        (->> keys next next quick-map-fn
+        (->> keys next next coffee-map-fn
              (cons (second keys))
              (cons k))
-        (->> keys next quick-map-fn (cons k) (cons (keyword k)))))))
+        (->> keys next coffee-map-fn (cons k) (cons (keyword k)))))))
 
-(defmacro quick-map [& keys]
-  (cons 'hash-map (quick-map-fn `~keys)))
+(defmacro coffee-map [& keys]
+  (cons 'hash-map (coffee-map-fn `~keys)))

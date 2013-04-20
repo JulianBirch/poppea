@@ -41,22 +41,26 @@ is the same as
    (fn [request] (assoc (handler request) :x 3))))
 ```
 
-I'd like to implement a version that does eager evaluation of the code that only depends on the curried arguments, but it's much more complex than what has currently been implemented.
-
 It should be pointed out that there are a couple of practical issues of which one should be aware when using defn-curried.
 
  * Since it's not returning a var, reloading on the repl won't change a curried function.
  * Be careful using currying with -> and ->>.  The argument order may not be what you expect.  Clojure doesn't have ML's rich operators.
 
+### Road Map
+
+I'd like to implement a version that does eager evaluation of the code that only depends on the curried arguments, but it's much more complex than what has currently been implemented.
+
+It'd also be nice to have a generator macro, which rewrites imperative style code as a reducer.  Turning a reducer into a lazy sequence shoudn't be problematic.
+
 ## quick-map
 
-The other macro is quick-map, which is inspired by Coffeescript's quick map syntax.
+The other macro is coffee-map, which is inspired by Coffeescript's quick map syntax.
 
 
 ```clj
 (let [x 3
       y 5]
-  (quick-map x y :z 1))
+  (coffee-map x y :z 1))
 ```
 
 is the same as
