@@ -22,7 +22,7 @@ Namespace:
 
 ## Currying
 
-Poppea implements very basic ML-style currying in three closely related macros.  It implements two macros: defn-curried (also defn-curried- and fn-curried)
+Poppea implements very basic ML-style currying in three closely related macros.  defn-curried, defn-curried- and fn-curried
 
 
 ```clj
