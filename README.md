@@ -60,15 +60,17 @@ The other macro is coffee-map, which is inspired by Coffeescript's quick map syn
 ```clj
 (let [x 3
       y 5]
-  (coffee-map x y :z 1))
+  (coffee-map x y "a" 78))
 ```
 
 is the same as
 
 
 ```clj
-(hash-map :x 3 :y 5 :z 1)
+(hash-map :x 3 :y 5 "a" 78)
 ```
+
+Basically, this is structuring, the complement of Clojures {:keys [x y]} destructuring.
 
 ## Why is it called Poppea?
 
