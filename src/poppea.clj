@@ -78,11 +78,9 @@
 
 (defn lookup [this & path] (get-in this path nil))
 
-(defn qualify [symbol-]
-  (let [n (name symbol-)]
-    (if (some #(= \/ %) n)
-      n
-      (symbol (str (ns-name *ns*) "/" n)))))
+(defn qualify [sym]
+  (let [{:keys [ns name]} (meta (resolve sym))]
+    (symbol (str (ns-name ns) "/" name))))
 
 (defmacro defrecord-fn [function-symbol & definition]
   (let [invoke (symbol "invoke")
