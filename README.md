@@ -10,7 +10,7 @@ The easiest way to use Poppea in your project is via
 Leiningen:
 
 ```clj
-[net.colourcoding/poppea "0.1.1"]
+[net.colourcoding/poppea "0.1.2"]
 ```
 
 Namespace:
