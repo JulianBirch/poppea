@@ -68,7 +68,7 @@
        (sort-by (comp - count))
        first binding-symbols))
 
-(defn- partial-invoke [{:keys [-symbol] :as this} & params]
+(defn partial-invoke [{:keys [-symbol] :as this} & params]
   (apply (find-var -symbol)
          (concat
           (->> (binding-symbols-for-symbol -symbol)
