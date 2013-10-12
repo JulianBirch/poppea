@@ -14,3 +14,11 @@
 (deftest currying
   (is (= 7
          ((add 3) 4))))
+
+(defn f [a b] (a b))
+
+(deftest document-partials
+  (is (= #'count (:a (document-partial f count)))
+      "Binds to the var if possible")
+  (is (= count (:a (let [c count] (document-partial f c))))
+      "Binds to the value if not"))
