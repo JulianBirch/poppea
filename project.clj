@@ -1,4 +1,4 @@
-(defproject net.colourcoding/poppea "0.1.2"
+(defproject net.colourcoding/poppea "0.1.3"
   :min-lein-version "2.0.0"
   :description "Useful macros for Clojure"
   :url "http://github.com/JulianBirch/poppea"
