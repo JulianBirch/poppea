@@ -63,15 +63,15 @@
    (map #(if (symbol? %) (keyword (name %)) %)
         (map-indexed extract-symbols binding-clause))))
 
-(defn binding-symbols-for-symbol [symbol]
-  (->> symbol find-var meta :arglists
+(defn binding-symbols-for-var [function]
+  (->> function meta :arglists
        (sort-by (comp - count))
        first binding-symbols))
 
-(defn partial-invoke [{:keys [-symbol] :as this} & params]
-  (apply (find-var -symbol)
+(defn partial-invoke [{:keys [-function] :as this} & params]
+  (apply -function
          (concat
-          (->> (binding-symbols-for-symbol -symbol)
+          (->> (binding-symbols-for-var -function)
                (map #(get this % ::missing))
                (remove #(= % ::missing)))
           params)))
@@ -102,17 +102,20 @@
               (~applyTo [this# args#]
                         (clojure.lang.AFn/applyToHelper this# args#))))))
 
-(defrecord-fn partial-invoke DocumentedPartial [-symbol])
+(defrecord-fn partial-invoke DocumentedPartial [-function])
 
 (defn resolve-symbol [s]
   (if (symbol? s) (or (resolve s) s) s))
 
 (defmacro document-partial [symbol & params]
-  (let [symbol (qualify symbol)]
-    `(assoc
-         (->DocumentedPartial ~symbol)
-       ~@(interleave (binding-symbols-for-symbol symbol)
-                     (map resolve-symbol params)))))
+  (let [function (resolve symbol)
+        ctor `(->DocumentedPartial ~function)]
+    (if (empty? params)
+      ctor
+      `(assoc
+          ~ctor
+         ~@(interleave (binding-symbols-for-var function)
+                       (map resolve-symbol params))))))
 
 (defmacro defrecord-get [& definition]
   `(defrecord-fn lookup ~@definition))
