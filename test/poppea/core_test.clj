@@ -18,10 +18,8 @@
 (defn f [a b] (a b))
 
 (deftest document-partials
-  (is (= #'count (:a (document-partial f count)))
-      "Binds to the var if possible")
   (is (= count (:a (let [c count] (document-partial f c))))
-      "Binds to the value if not")
+      "Binds correctly to local bindings.")
   (is (document-partial string?)
       "Should handle partials with no parameters.")
   (is (= 3 ((document-partial count) [:a :b :c])))

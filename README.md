@@ -10,7 +10,7 @@ The easiest way to use Poppea in your project is via
 Leiningen:
 
 ```clj
-[net.colourcoding/poppea "0.1.5"]
+[net.colourcoding/poppea "0.1.6"]
 ```
 
 Namespace:
@@ -30,7 +30,7 @@ the same thing and (importantly) is serializable.
 (defn f [a b c d] (+ a b c d))
 
 (document-partial f 1 2)
-=> #poppea.DocumentedPartial{:-symbol user/f, :b 2, :a 1}
+=> #poppea.DocumentedPartial{:-function #'user/f, :b 2, :a 1}
 
 ((document-partial f 1 2) 3 4)
 => 10
@@ -46,6 +46,10 @@ It's a proper data structure, so you can do things like this:
 Note that this provides a fairly elegant way of serializing
 anonymous functions: rewrite to a var function and then use
 document-partial.
+
+`document-partial` a macro, so can't be used in all of the places partial can be.
+* The function has to be a symbol referring to a var.  This is nearly always how `partial` is used anyway.
+* It's not recursive, so `(document-partial comp identity)` won't perform `document-partial` on identity.  Which is actually a good thing in practice.
 
 ### Easter eggs
 
@@ -83,7 +87,7 @@ other functions.
 
 ### Performance
 
-`defn-curried` is marginally faster than `partial`.  `document-partial` is significantly slower.
+`defn-curried` is marginally faster than `partial`.  `document-partial` is significantly slower.  It's very rare that this is material in either direction.
 
 ### Road Map
 

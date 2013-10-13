@@ -104,9 +104,6 @@
 
 (defrecord-fn partial-invoke DocumentedPartial [-function])
 
-(defn resolve-symbol [s]
-  (if (symbol? s) (or (resolve s) s) s))
-
 (defmacro document-partial [symbol & params]
   (let [function (resolve symbol)
         ctor `(->DocumentedPartial ~function)]
@@ -115,7 +112,7 @@
       `(assoc
           ~ctor
          ~@(interleave (binding-symbols-for-var function)
-                       (map resolve-symbol params))))))
+                       params)))))
 
 (defmacro defrecord-get [& definition]
   `(defrecord-fn lookup ~@definition))
