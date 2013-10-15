@@ -23,4 +23,10 @@
   (is (document-partial string?)
       "Should handle partials with no parameters.")
   (is (= 3 ((document-partial count) [:a :b :c])))
-  (is (= 5 ((document-partial + 2 1) 2))))
+  (is (= 5 ((document-partial + 2 1) 2)))
+  (is (= 3 ((document-partial-% count) [:a :b :c])))
+  (is (= 5 ((document-partial-% + 2 1) 2)))
+  (is ((document-partial-% < % 4) 3))
+  (is (= [2 7 3 4]
+         ((document-partial-% list %2 7) 1 2 3 4)))
+  (is (not ((document-partial-% < % 4) 4))))

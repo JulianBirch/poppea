@@ -10,7 +10,7 @@ The easiest way to use Poppea in your project is via
 Leiningen:
 
 ```clj
-[net.colourcoding/poppea "0.1.6"]
+[net.colourcoding/poppea "0.1.7"]
 ```
 
 Namespace:
@@ -47,9 +47,22 @@ Note that this provides a fairly elegant way of serializing
 anonymous functions: rewrite to a var function and then use
 document-partial.
 
-`document-partial` a macro, so can't be used in all of the places partial can be.
+`document-partial` is a macro, so can't be used in all of the places partial can be.
 * The function has to be a symbol referring to a var.  This is nearly always how `partial` is used anyway.
 * It's not recursive, so `(document-partial comp identity)` won't perform `document-partial` on identity.  Which is actually a good thing in practice.
+* Nesting `document-partial` within an anonymous function works, but is confusing.  I don't recommend doing it, especially considering that it should be considered an alternative to anonymous functions.
+
+### document-partial-%
+
+If you need to insert arguments into the middle of functions, you can call document-partial-%.
+
+```clj
+((document-partial-% / % 2) 6)
+;;; 6
+
+((document-partial-% list %2 :x) 1 2 3 4)
+;;; (2 :x 3 4)
+```
 
 ### Easter eggs
 

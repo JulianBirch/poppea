@@ -1,5 +1,7 @@
 (ns poppea
-  (:require [spyscope.core]))
+  (:require [spyscope.core]
+            [clojure.string :as s]
+            [clojure.edn :as edn]))
 
 (defn- curry
   [[params1 params2] body]
@@ -68,19 +70,44 @@
        (sort-by (comp - count))
        first binding-symbols))
 
+(defn parameter-capture? [param]
+  (and (symbol? param)
+       (re-find #"^%" (name param))))
+
+(defn bound-index [param]
+  (if (parameter-capture? param)
+    (let [s (.substring (name param) 1)
+          a (edn/read-string s)]
+      (cond (number? a) (dec a)
+            (= (count s) 0) 0))))
+
+(defn-curried include-% [params bound index]
+  (if index
+    (nth params index)
+    bound))
+
+(defn bound-params [{:keys [-function] :as this}]
+  (->> (binding-symbols-for-var -function)
+       (map #(get this % ::missing))
+       (remove #(= % ::missing))))
+
+(defn partial-invoke-% [{:keys [-function] :as this} & params]
+  (let [bound-params (bound-params this)
+        indexes (apply vector (map bound-index bound-params))
+        non-nil-indexes (remove nil? indexes)
+        c (if (empty? non-nil-indexes)
+            0
+            (inc (apply max non-nil-indexes)))]
+    (apply -function
+           (concat (map (include-% params) bound-params indexes)
+                   (drop c params)))))
+
 (defn partial-invoke [{:keys [-function] :as this} & params]
   (apply -function
-         (concat
-          (->> (binding-symbols-for-var -function)
-               (map #(get this % ::missing))
-               (remove #(= % ::missing)))
-          params)))
+         (concat (bound-params this) params)))
 
-(defn lookup [this & path] (get-in this path nil))
-
-(defn qualify [sym]
-  (let [{:keys [ns name]} (meta (resolve sym))]
-    (symbol (str (ns-name ns) "/" name))))
+;;; Don't use this, it's just used to implement defrecord-get
+(defn record-lookup [this & path] (get-in this path nil))
 
 (defmacro defrecord-fn [function-symbol & definition]
   (let [invoke (symbol "invoke")
@@ -102,17 +129,31 @@
               (~applyTo [this# args#]
                         (clojure.lang.AFn/applyToHelper this# args#))))))
 
-(defrecord-fn partial-invoke DocumentedPartial [-function])
+(defrecord-fn partial-invoke-%
+  DocumentedPartialArg [-function])
+(defrecord-fn partial-invoke
+  DocumentedPartial [-function])
+
+(defn document-partial-fn [function ctor process params]
+  (if (empty? params)
+    ctor
+    `(assoc
+         ~ctor
+       ~@(interleave (binding-symbols-for-var function)
+                     (map process params)))))
+
+(defn capture-% [s]
+  (if (parameter-capture? s) `'~s s))
+
+(defmacro document-partial-% [symbol & params]
+  (let [function (resolve symbol)
+        ctor `(DocumentedPartialArg. ~function)]
+    (document-partial-fn function ctor capture-% params)))
 
 (defmacro document-partial [symbol & params]
   (let [function (resolve symbol)
-        ctor `(->DocumentedPartial ~function)]
-    (if (empty? params)
-      ctor
-      `(assoc
-          ~ctor
-         ~@(interleave (binding-symbols-for-var function)
-                       params)))))
+        ctor `(DocumentedPartial. ~function)]
+    (document-partial-fn function ctor identity params)))
 
 (defmacro defrecord-get [& definition]
-  `(defrecord-fn lookup ~@definition))
+  `(defrecord-fn record-lookup ~@definition))
