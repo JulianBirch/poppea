@@ -2,16 +2,11 @@
 
 A couple of macros that do useful, general things.
 
+[![Build Status](https://travis-ci.org/JulianBirch/poppea.svg?branch=master)](https://travis-ci.org/JulianBirch/poppea)
+
 ## Usage
 
-The easiest way to use Poppea in your project is via
-[Clojars](http://clojars.org/net.colourcoding/poppea).
-
-Leiningen:
-
-```clj
-[net.colourcoding/poppea "0.1.7"]
-```
+[![Leiningen version](http://clojars.org/net.colourcoding/poppea/latest-version.svg)](http://clojars.org/net.colourcoding/poppea)
 
 Namespace:
 
@@ -30,7 +25,7 @@ the same thing and (importantly) is serializable.
 (defn f [a b c d] (+ a b c d))
 
 (document-partial f 1 2)
-=> #poppea.DocumentedPartial{:-function #'user/f, :b 2, :a 1}
+=> #poppea.DocumentedPartial{:poppea/function #'user/f, :b 2, :a 1}
 
 ((document-partial f 1 2) 3 4)
 => 10
@@ -63,6 +58,8 @@ If you need to insert arguments into the middle of functions, you can call docum
 ((document-partial-% list %2 :x) 1 2 3 4)
 ;;; (2 :x 3 4)
 ```
+
+Note that you can't put % inside a subexpression or document-partial-% inside a lambda function and expect nice things to happen.
 
 ### Easter eggs
 

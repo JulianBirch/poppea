@@ -1,6 +1,5 @@
 (ns poppea
-  (:require [spyscope.core]
-            [clojure.string :as s]
+  (:require [clojure.string :as s]
             [clojure.edn :as edn]))
 
 (defn- curry
@@ -86,24 +85,25 @@
     (nth params index)
     bound))
 
-(defn bound-params [{:keys [-function] :as this}]
-  (->> (binding-symbols-for-var -function)
+(defn bound-params [this]
+  (->> (::function this)
+       binding-symbols-for-var
        (map #(get this % ::missing))
        (remove #(= % ::missing))))
 
-(defn partial-invoke-% [{:keys [-function] :as this} & params]
+(defn partial-invoke-% [this & params]
   (let [bound-params (bound-params this)
         indexes (apply vector (map bound-index bound-params))
         non-nil-indexes (remove nil? indexes)
         c (if (empty? non-nil-indexes)
             0
             (inc (apply max non-nil-indexes)))]
-    (apply -function
+    (apply (::function this)
            (concat (map (include-% params) bound-params indexes)
                    (drop c params)))))
 
-(defn partial-invoke [{:keys [-function] :as this} & params]
-  (apply -function
+(defn partial-invoke [this & params]
+  (apply (::function this)
          (concat (bound-params this) params)))
 
 ;;; Don't use this, it's just used to implement defrecord-get
@@ -130,30 +130,38 @@
                         (clojure.lang.AFn/applyToHelper this# args#))))))
 
 (defrecord-fn partial-invoke-%
-  DocumentedPartialArg [-function])
+  DocumentedPartialArg [])
 (defrecord-fn partial-invoke
-  DocumentedPartial [-function])
+  DocumentedPartial [])
 
-(defn document-partial-fn [function ctor process params]
-  (if (empty? params)
-    ctor
-    `(assoc
-         ~ctor
-       ~@(interleave (binding-symbols-for-var function)
-                     (map process params)))))
+(defn document-partial-map [symbol process params]
+  (assert (not (nil? (resolve `~symbol)))
+          (str "Could not resolve " symbol))
+  (let [function (resolve `~symbol)]
+    `(hash-map
+      ::function ~function
+      ~@(interleave (binding-symbols-for-var function)
+                    (map process params)))))
 
 (defn capture-% [s]
   (if (parameter-capture? s) `'~s s))
 
 (defmacro document-partial-% [symbol & params]
-  (let [function (resolve symbol)
-        ctor `(DocumentedPartialArg. ~function)]
-    (document-partial-fn function ctor capture-% params)))
+  `(map->DocumentedPartialArg
+    ~(document-partial-map symbol capture-% params)))
 
 (defmacro document-partial [symbol & params]
-  (let [function (resolve symbol)
-        ctor `(DocumentedPartial. ~function)]
-    (document-partial-fn function ctor identity params)))
+  `(map->DocumentedPartial
+    ~(document-partial-map symbol identity params)))
 
 (defmacro defrecord-get [& definition]
   `(defrecord-fn record-lookup ~@definition))
+
+(defn at [yield]
+  (fn ([] (println "Arity 0") (yield))
+    ([x] (println "Arity 1") (yield x))
+    ([r x] (println "Arity 2")
+       (def p0 yield)
+       (def p1 r)
+       (def p2 x)
+       (yield r x))))

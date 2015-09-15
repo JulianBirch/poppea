@@ -1,6 +1,7 @@
 (ns poppea.core-test
   (:use clojure.test
-        poppea))
+        poppea
+        [clojure.string :as s]))
 
 (def a 4)
 (def b 5)
@@ -30,3 +31,7 @@
   (is (= [2 7 3 4]
          ((document-partial-% list %2 7) 1 2 3 4)))
   (is (not ((document-partial-% < % 4) 4))))
+
+(deftest symbol-resolution
+  (is (document-partial s/blank?)
+      "Should handle aliases."))
