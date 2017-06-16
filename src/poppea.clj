@@ -1,6 +1,6 @@
 (ns poppea
   (:require [clojure.string :as s]
-            [clojure.edn :as edn]))
+            [clojure.tools.reader.edn :as edn]))
 
 (defn- curry
   [[params1 params2] body]
